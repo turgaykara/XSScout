@@ -17,10 +17,12 @@ subdomain, parametre ve JavaScript endpoint keşfi yapan otomatik bir araçtır.
 ---
 
 installation:  
+```
 git clone https://github.com/turgaykara/XSScout.git  
 cd XSScout  
 
 pip install -r requirements.txt  
 
-chmod +x setup.sh
+chmod +x setup.sh  
 ./setup.sh
+```
