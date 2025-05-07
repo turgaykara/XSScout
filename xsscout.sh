@@ -1,6 +1,7 @@
 # SCRIPT:
 # -------------------------------------------------------------------------------------------------------------------
-
+mv xsscout.sh paramspider
+cd paramspider
 
 subfinder -d atilsamancioglu.com -silent -o subdomains.txt
 
@@ -56,9 +57,11 @@ rm -rf filtered_links.txt
 rm -rf linkfinder2.txt
 rm -rf resultjs.txt
 rm -rf dlinkfinder.txt
-cd ../
-mv results/ ../
 
+cd ..
+mv results ../
+mv xsscout.sh ../
+cd ..
 
 # --------------------------------------------------------------------
 
