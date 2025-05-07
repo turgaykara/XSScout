@@ -1,7 +1,7 @@
 # SCRIPT:
 # -------------------------------------------------------------------------------------------------------------------
 
-# Banner
+# Büyük banner
 clear
 toilet -F metal -f standard -w 80 "XSS Scout"
 
@@ -12,7 +12,6 @@ echo "-------------------------------------------------------"
 echo ""
 echo "                                 🔧 Created by Neon"
 echo ""
-
 
 # Kullanıcıdan hedef siteyi al
 read -p "Hedef site (örnek: example.com): " TARGET
@@ -39,14 +38,12 @@ cat live_subdomains.txt | while read url; do
     done
 done
 
-
 # Sonuclari derle
 mkdir -p results
 mv dresultjs.txt results/
 mv dresultq.txt results/
 mv subdomains.txt results/
 mv live_subdomains.txt results/
-
 
 # Sonuclari temizle
 cd results/
@@ -61,7 +58,7 @@ cd ../../LinkFinder/
 mv linkfinder2.txt ../paramspider/results
 cd ../paramspider/results
 
-# .js uzantili urllerden cikan domainler
+# Linkfinder (.js)
 httpx -l linkfinder2.txt -silent -mc 200,401,403,500 -status-code -o filtered_links.txt
 grep -v ' \[\]$' filtered_links.txt > cleaned_links.txt
 sed 's/ \[.*\]//' cleaned_links.txt > linkfinder.txt
@@ -86,13 +83,10 @@ ls
 echo ""
 echo "-------------------------------------------------------"
 
-
 # --------------------------------------------------------------------
-
 # *SONUC:
 # subdomains.txt	   -> Subdomain listesi.
 # live_subdomains.txt  -> Aktif olan subdomain listesi.
 # resultq.txt	       -> Manuel XSS payload denemesi yapilabilir.
 # linkfinder.txt       -> Test edilebilecek ekstra sayfalar.
-
 # --------------------------------------------------------------------
