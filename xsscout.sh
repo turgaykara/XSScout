@@ -1,7 +1,6 @@
 # SCRIPT:
 # -------------------------------------------------------------------------------------------------------------------
 
-# Büyük banner
 clear
 toilet -F metal -f standard -w 80 "XSS Scout"
 
@@ -13,7 +12,6 @@ echo ""
 echo "                                 🔧 Created by Neon"
 echo ""
 
-# Kullanıcıdan hedef siteyi al
 read -p "Hedef site (örnek: example.com): " TARGET
 mv xsscout.sh paramspider
 cd paramspider
@@ -25,27 +23,22 @@ cat subdomains.txt | httpx -silent -o live_subdomains.txt
 cat live_subdomains.txt | while read url; do
     domain=$(echo $url | sed 's~http[s]*://~~' | sed 's~/.*~~')
     echo "[*] Scanning $domain"
-    
-    # Paramspider'ı çalıştır
+
     python3 paramspider.py -d $domain --exclude woff,css,png,jpg,jpeg,gif,svg --level high | while read result; do
-        # Eğer sonuç .js içeriyorsa resultjs.txt'ye kaydet
         if [[ $result == *.js* ]]; then
             echo "$result" >> dresultjs.txt
         else
-            # Diğer sonuçları dresultq.txt'ye kaydet
             echo "$result" >> dresultq.txt
         fi
     done
 done
 
-# Sonuclari derle
 mkdir -p results
 mv dresultjs.txt results/
 mv dresultq.txt results/
 mv subdomains.txt results/
 mv live_subdomains.txt results/
 
-# Sonuclari temizle
 cd results/
 cat dresultjs.txt | sed 's/?ver=FUZZ$//' > resultjs.txt
 sed -n '/^http/p' dresultq.txt > resultq.txt
@@ -58,7 +51,6 @@ cd ../../LinkFinder/
 mv linkfinder2.txt ../paramspider/results
 cd ../paramspider/results
 
-# Linkfinder (.js)
 httpx -l linkfinder2.txt -silent -mc 200,401,403,500 -status-code -o filtered_links.txt
 grep -v ' \[\]$' filtered_links.txt > cleaned_links.txt
 sed 's/ \[.*\]//' cleaned_links.txt > linkfinder.txt
@@ -83,10 +75,13 @@ ls
 echo ""
 echo "-------------------------------------------------------"
 
+
 # --------------------------------------------------------------------
+
 # *SONUC:
 # subdomains.txt       -> Subdomain listesi.
 # live_subdomains.txt  -> Aktif olan subdomain listesi.
 # resultq.txt	       -> Manuel XSS payload denemesi yapilabilir.
 # linkfinder.txt       -> Test edilebilecek ekstra sayfalar.
+
 # --------------------------------------------------------------------
