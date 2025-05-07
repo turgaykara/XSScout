@@ -1,10 +1,25 @@
 # SCRIPT:
 # -------------------------------------------------------------------------------------------------------------------
 
+# Banner
+clear
+toilet -F metal -f standard -w 80 "XSS Scout"
+
+echo "-------------------------------------------------------"
+echo "🕵️   This script scans the target's subdomains and"
+echo "🎯 helps you discover pages potentially vuln. to XSS."
+echo "-------------------------------------------------------"
+echo ""
+echo "                                 🔧 Created by Neon"
+echo ""
+
+
+# Kullanıcıdan hedef siteyi al
+read -p "Hedef site (örnek: example.com): " TARGET
 mv xsscout.sh paramspider
 cd paramspider
 
-subfinder -d atilsamancioglu.com -silent -o subdomains.txt
+subfinder -d "$TARGET" -silent -o subdomains.txt
 
 cat subdomains.txt | httpx -silent -o live_subdomains.txt
 
@@ -39,8 +54,6 @@ cat dresultjs.txt | sed 's/?ver=FUZZ$//' > resultjs.txt
 sed -n '/^http/p' dresultq.txt > resultq.txt
 rm -rf dresultjs.txt
 rm -rf dresultq.txt
-
-
 mv resultjs.txt ../../LinkFinder/
 cd ../../LinkFinder/
 > dlinkfinder.txt && while read url; do python3 linkfinder.py -i "$url" -o cli | grep -v -e "Error" -e "Usage"; done < resultjs.txt > dlinkfinder.txt
@@ -63,13 +76,23 @@ cd ..
 mv results ../
 mv xsscout.sh ../
 cd ..
+clear
+cd results/
+
+echo "-------------------------------------------------------"
+echo ""
+echo "[+] Gerekli tüm Linkler results/ klasörüne kaydedildi!"
+ls
+echo ""
+echo "-------------------------------------------------------"
+
 
 # --------------------------------------------------------------------
 
 # *SONUC:
-# subdomains.txt	       -> Subdomain listesi.
-# live_subdomains.txt    -> Aktif olan subdomain listesi.
+# subdomains.txt	   -> Subdomain listesi.
+# live_subdomains.txt  -> Aktif olan subdomain listesi.
 # resultq.txt	       -> Manuel XSS payload denemesi yapilabilir.
-# linkfinder.txt         -> Test edilebilecek ekstra sayfalar.
+# linkfinder.txt       -> Test edilebilecek ekstra sayfalar.
 
 # --------------------------------------------------------------------
