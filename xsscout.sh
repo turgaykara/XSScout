@@ -85,7 +85,7 @@ echo "-------------------------------------------------------"
 
 # --------------------------------------------------------------------
 # *SONUC:
-# subdomains.txt	   -> Subdomain listesi.
+# subdomains.txt       -> Subdomain listesi.
 # live_subdomains.txt  -> Aktif olan subdomain listesi.
 # resultq.txt	       -> Manuel XSS payload denemesi yapilabilir.
 # linkfinder.txt       -> Test edilebilecek ekstra sayfalar.
