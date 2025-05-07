@@ -23,9 +23,6 @@ pip install -r requirements.txt
 chmod +x setup.sh  
 bash setup.sh
 
-mv xsscout.sh paramspider/
-cd paramspider
-
 dos2unix xsscout.sh
 ```
 
