@@ -4,3 +4,4 @@ colorama
 pyyaml
 tqdm
 urllib3
+pip install jsbeautifier
