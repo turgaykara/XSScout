@@ -21,10 +21,20 @@ INSTALLATION:
 git clone https://github.com/turgaykara/XSScout.git  
 cd XSScout  
 
-pip install -r requirements.txt  
+python3 -m venv myenv
+source myenv/bin/activate
+python -m pip install --upgrade pip
+
+pip install -r requirements.txt
 
 chmod +x setup.sh  
-./setup.sh
+bash setup.sh
+
+mv xsscout.sh paramspider/
+cd paramspider
+
+dos2unix xsscout.sh
+bash xsscout.sh
 ```
 
 ---
