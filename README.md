@@ -16,7 +16,7 @@ subdomain, parametre ve JavaScript endpoint keşfi yapan otomatik bir araçtır.
 
 ---
 
-installation:  
+INSTALLATION:  
 ```
 git clone https://github.com/turgaykara/XSScout.git  
 cd XSScout  
@@ -25,4 +25,12 @@ pip install -r requirements.txt
 
 chmod +x setup.sh  
 ./setup.sh
+```
+
+---
+
+RUN: 
+```
+dos2unix xsscout.sh  
+bash xsscout.sh
 ```
