@@ -48,6 +48,16 @@ cat results/live_subdomains.txt | xargs -P "$THREADS" -I {} bash -c '
     python3 paramspider/paramspider.py -d $domain --exclude woff,css,png,jpg,jpeg,gif,svg --level high
 ' | grep ".js" | sed 's/?ver=FUZZ$//' | sort -u > results/js_raw.txt
 
+
+# 5. Input içeren sayfaları tespit et
+echo "[*] Input alanı içeren sayfalar aranıyor..."
+> results/urlswinput.txt
+cat results/resultq.txt | while read url; do
+    echo "[*] Kontrol ediliyor: $url"
+    curl -s --max-time 10 "$url" | grep -Eqi "<input|<textarea" && echo "$url" >> results/urlswinput.txt
+done
+
+
 # LinkFinder ile endpoint çıkar
 > results/js_links.txt
 cat results/js_raw.txt | xargs -P "$THREADS" -I {} python3 LinkFinder/linkfinder.py -i {} -o cli | grep -v -e "Error" -e "Usage" >> results/js_links.txt
@@ -69,4 +79,7 @@ clear
 echo "-------------------------------------------------------"
 echo "[+] Tarama tamamlandı!"
 echo "[*] Sonuçlar results/ klasörüne kaydedildi!"
+echo ""
+echo "[*] Bulunan Subdomain sayısı: $(wc -l < subdomains.txt)"
+echo "[*]  Aktif  Subdomain sayısı: $(wc -l < subdomains.txt)"
 echo "-------------------------------------------------------"
