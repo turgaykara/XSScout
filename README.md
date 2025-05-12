@@ -20,10 +20,10 @@ source myenv/bin/activate
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 
-chmod +x setup.sh  
-bash setup.sh
+chmod +x setup.sh
 
 dos2unix xsscout.sh
+bash setup.sh
 ```
 
 ---
