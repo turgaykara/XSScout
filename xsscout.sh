@@ -1,3 +1,5 @@
+# duzeltme: fuzzlu siteler tum subdomainlerde bulunmali, 
+#  ffuf dalfox xsstrike gibi araclarla devam ettir.
 #!/bin/bash
 #xsscout.v2 {cleaner and faster}
 start_time=$(date +%s)
