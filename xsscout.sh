@@ -1,8 +1,9 @@
 #!/bin/bash
 #xsscout.v2 {cleaner and faster}
+start_time=$(date +%s)
 
 clear
-toilet -F metal -f standard -w 80 "XSS Scout"
+toilet -F metal "XSS Scout"
 echo "-------------------------------------------------------"
 echo "🕵️   Hedefin subdomainlerini tarar ve"
 echo "🎯 XSS test edilebilecek sayfaları çıkarır."
@@ -12,74 +13,75 @@ echo "                                 🔧 Created by Neon"
 echo ""
 
 read -p "Type domain (eg. test.com) ==> " TARGET
-
-# Kullanıcıdan thread sayısını al
 read -p "Max thread (eg. 1000) ==> " THREADS
 
-# Varsayılan thread değeri
-if [ -z "$THREADS" ]; then
-    THREADS=20
-fi
+[ -z "$THREADS" ] && THREADS=20
 
-# Dizinleri oluştur
 mkdir -p results
 
-# 1. Subdomain bul
 echo "[*] Subdomain taranıyor..."
 subfinder -d "$TARGET" -silent -o results/subdomains.txt
 
-# 2. Canlı subdomainleri bul
 echo "[*] Canlı subdomainler aranıyor..."
 httpx -l results/subdomains.txt -silent -threads "$THREADS" -o results/live_subdomains.txt
 
-# 3. ParamSpider ile parametreli sayfaları bul
-echo "[*] Parametreli endpointler aranıyor..."
+# Paramspider sadece bir kez çalıştırılır
+echo "[*] Parametreli endpointler ve JS linkler çıkartılıyor..."
 > results/resultq.txt
+> results/js_tmp.txt
+
 cat results/live_subdomains.txt | xargs -P "$THREADS" -I {} bash -c '
     domain=$(echo {} | sed "s~http[s]*://~~" | sed "s~/.*~~")
     python3 paramspider/paramspider.py -d $domain --exclude woff,css,png,jpg,jpeg,gif,svg --level high 2>/dev/null
-' | grep -Eo 'https?://[^ ]+' >> results/resultq.txt
+' | tee results/all_paramspider_output.txt \
+  | grep -Eo 'https?://[^ ]+' >> results/resultq.txt
 
-# 4. JS dosyaları üzerinden endpoint çıkart
-echo "[*] JS içinden endpointler çıkartılıyor..."
-> results/js_links.txt
-cat results/live_subdomains.txt | xargs -P "$THREADS" -I {} bash -c '
-    domain=$(echo {} | sed "s~http[s]*://~~" | sed "s~/.*~~")
-    python3 paramspider/paramspider.py -d $domain --exclude woff,css,png,jpg,jpeg,gif,svg --level high
-' | grep ".js" | sed 's/?ver=FUZZ$//' | sort -u > results/js_raw.txt
+# Sadece .js linkleri ayıkla
+cat results/all_paramspider_output.txt | grep ".js" | sed 's/?ver=FUZZ$//' | sort -u > results/js_tmp.txt
+rm -f results/all_paramspider_output.txt  # geçici dosya silinsin
 
-
-# 5. Input içeren sayfaları tespit et
-echo "[*] Input alanı içeren sayfalar aranıyor..."
+echo "[*] Input içeren sayfalar kontrol ediliyor..."
 > results/urlswinput.txt
-cat results/resultq.txt | while read url; do
-    echo "[*] Kontrol ediliyor: $url"
-    curl -s --max-time 10 "$url" | grep -Eqi "<input|<textarea" && echo "$url" >> results/urlswinput.txt
-done
+cat results/resultq.txt | xargs -P "$THREADS" -I {} bash -c '
+    curl -s --max-time 10 "{}" | grep -Eqi "<input|<textarea" && echo "{}" >> results/urlswinput.txt
+'
 
+echo "[*] LinkFinder ile endpointler toplanıyor..."
+> results/linkfinder_raw.txt
+cat results/js_tmp.txt | xargs -P "$THREADS" -I {} python3 LinkFinder/linkfinder.py -i {} -o cli | grep -v -e "Error" -e "Usage" >> results/linkfinder_raw.txt
+rm -f results/js_tmp.txt
 
-# LinkFinder ile endpoint çıkar
-> results/js_links.txt
-cat results/js_raw.txt | xargs -P "$THREADS" -I {} python3 LinkFinder/linkfinder.py -i {} -o cli | grep -v -e "Error" -e "Usage" >> results/js_links.txt
-
-# Full link haline getir
+echo "[*] Full link haline getiriliyor..."
 > results/linkfinder.txt
-cat results/js_links.txt | while read url; do
+cat results/linkfinder_raw.txt | while read url; do
     [[ "$url" == http* ]] && echo "$url" || echo "https://$TARGET/$url"
 done >> results/linkfinder.txt
+rm -f results/linkfinder_raw.txt
 
-# Geçersizleri ele
+echo "[*] Link doğrulama yapılıyor..."
 httpx -l results/linkfinder.txt -silent -mc 200,401,403 -threads "$THREADS" -o results/live_endpoints.txt
 grep -v ' \[\]$' results/live_endpoints.txt | sed 's/ \[.*\]//' > results/linkfinder.txt
-rm -f results/live_endpoints.txt results/js_links.txt results/js_raw.txt
+rm -f results/live_endpoints.txt
+
+clear
 cd results/
 
-# Tamamlandı
-clear
 echo "-------------------------------------------------------"
+echo ""
 echo "[+] Tarama tamamlandı!"
 echo "[*] Sonuçlar results/ klasörüne kaydedildi!"
 echo ""
-echo "[*] Bulunan Subdomain sayısı: $(wc -l < subdomains.txt)"
-echo "[*]  Aktif  Subdomain sayısı: $(wc -l < subdomains.txt)"
+echo "[*] Bulunan Subdomain sayısı      : $(wc -l < subdomains.txt)"
+echo "[*] Aktif    Subdomain sayısı     : $(wc -l < live_subdomains.txt)"
+echo "[*] Sorgu parametreli URL sayısı  :  $(wc -l < resultq.txt)"
+echo "[*] .js ile bulunan URL sayısı    : $(wc -l < linkfinder.txt)"
+echo "[*] Input içeren URL sayısı       : $(wc -l < urlswinput.txt)"
+echo ""
+
+end_time=$(date +%s)
+duration=$(( end_time - start_time ))
+minutes=$(( duration / 60 ))
+seconds=$(( duration % 60 ))
+
+echo "[⏱️]: ${minutes} dakika ${seconds} saniye"
 echo "-------------------------------------------------------"
