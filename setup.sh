@@ -1,33 +1,6 @@
 #!/bin/bash
 
 # Paramspider'ı yükle
-cd ~/Desktop/
-git clone https://github.com/0xKayala/paramspider.git
-cd paramspider
-pip install -r requirements.txt
-cd ..
-
-# LinkFinder'ı yükle
-git clone https://github.com/GerbenJavado/LinkFinder.git
-cd LinkFinder
-pip install -r requirements.txt
-cd ..
-
-# Go yükle (Subfinder ve httpx için)
-sudo apt install golang -y
-
-# Subfinder'ı yükle
-GO111MODULE=on go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
-
-# httpx'i yükle
-GO111MODULE=on go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest
-
-
-
-
-#!/bin/bash
-
-# Paramspider'ı yükle
 echo "[*] Cloning Paramspider repository..."
 cd ~/Desktop/
 git clone https://github.com/0xKayala/paramspider.git
